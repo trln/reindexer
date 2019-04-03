@@ -65,6 +65,9 @@ func LoadConfig(files ...string) (*Config, error) {
 		SolrUrl:   "http://localhost:8983/solr/trlnbib",
 		ChunkSize: 20000,
         Workers:   runtime.NumCPU() -1}
+    if conf.Workers <1 {
+        conf.Workers = 1
+    }
 	filename := "config.json"
 	if len(files) > 1 {
 		filename = files[1]
