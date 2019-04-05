@@ -13,7 +13,7 @@ fi
 
 sudo yum -y groupinstall "Development Tools"
 
-sudo yum -y install yajl git golang ruby rubygem-bundler jq
+sudo yum -y install yajl git golang ruby ruby-devel rubygem-bundler jq
 
 ARGOT_BRANCH=${1:-master}
 
@@ -39,6 +39,6 @@ popd
 go get github.com/jmoiron/sqlx
 go get github.com/lib/pq
 
-ln -s ~/go/src/reindexer $(pwd)
+ln -s $(pwd) ~/go/src/reindexer
 go test && go build driver.go
 cp driver ~/bin
