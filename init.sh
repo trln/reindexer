@@ -24,8 +24,17 @@ if [ ! -d argot-ruby ]; then
 fi
 cd argot-ruby
 git checkout "${ARGOT_BRANCH}"
+# these appear not to be installed on ARM systems.
+gem install io-console
+gem install json
+
 bundle install
 rake install
 popd
+
+go get github.com/jmoiron/sqlx
+go get github.com/lib/pq
+
+ln -s ~/go/src/reindexer $(pwd)
 
 go build driver.go

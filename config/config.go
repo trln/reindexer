@@ -3,11 +3,11 @@ package config
 import (
 	"encoding/json"
 	"errors"
-    "fmt"
+	"fmt"
 	"io/ioutil"
 	"log"
-    "runtime"
-    "strconv"
+	"runtime"
+	"strconv"
 )
 
 type Config struct {
@@ -16,21 +16,19 @@ type Config struct {
 	Database  string `json:"database"`  // name of the database ('shrindex')
 	User      string `json:"user"`      // username for database access
 	Password  string `json:"password"`  // password associated with username
-    Query     string `json:"query"`     // query to use to fetch documents (default: evertying that isn't deleted)
+	Query     string `json:"query"`     // query to use to fetch documents (default: evertying that isn't deleted)
 	ChunkSize int    `json:"chunkSize"` // number of documents in each package
 	SolrUrl   string `json:"solrUrl"`   // base url to solr collection
-    Workers   int    `json:"workers"`   // number of concurrent workers (cpu count -1) 
+	Workers   int    `json:"workers"`   // number of concurrent workers (cpu count -1)
 }
 
 func (c *Config) DatabaseUrl() string {
-    return fmt.Sprintf("postgres://%s:%s@%s:%d/%s", c.User, c.Password, c.Host, c.Port, c.Database)
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s", c.User, c.Password, c.Host, c.Port, c.Database)
 }
 
 func (c *Config) DisplayDatabaseUrl() string {
-    return fmt.Sprintf("postgres://%s:%s@%s:%d/%s", "[USER]", "[REDACTED]", c.Host, c.Port, c.Database)
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s", "[USER]", "[REDACTED]", c.Host, c.Port, c.Database)
 }
-
-
 
 // sets defaults and validates a configuration
 // error will be non-nil if there is an unrecoverable problem
@@ -39,9 +37,9 @@ func (c *Config) Validate() error {
 		return errors.New("chunkSize should be between 10 and 100000")
 	}
 
-    if c.Workers < 1 || c.Workers > runtime.NumCPU() {
-        return errors.New("workers must be between 1 and " + strconv.Itoa(runtime.NumCPU()))
-    }
+	if c.Workers < 1 || c.Workers > runtime.NumCPU() {
+		return errors.New("workers must be between 1 and " + strconv.Itoa(runtime.NumCPU()))
+	}
 
 	if c.Password == "" {
 		return errors.New("configuration does not contain password (databae)")
@@ -61,13 +59,13 @@ func LoadConfig(files ...string) (*Config, error) {
 		Port:      5432,
 		User:      "shrindex",
 		Database:  "shrindex",
-        Query:     "select id, txn_id, owner, content from documents WHERE NOT deleted",
+		Query:     "select id, txn_id, owner, content from documents WHERE NOT deleted",
 		SolrUrl:   "http://localhost:8983/solr/trlnbib",
 		ChunkSize: 20000,
-        Workers:   runtime.NumCPU() -1}
-    if conf.Workers <1 {
-        conf.Workers = 1
-    }
+		Workers:   runtime.NumCPU() - 1}
+	if conf.Workers < 1 {
+		conf.Workers = 1
+	}
 	filename := "config.json"
 	if len(files) > 1 {
 		filename = files[1]
@@ -79,10 +77,10 @@ func LoadConfig(files ...string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-    err = json.Unmarshal(data, conf)
-    if err != nil {
-        return nil, err
-    }
+	err = json.Unmarshal(data, conf)
+	if err != nil {
+		return nil, err
+	}
 	err = conf.Validate()
 	if err != nil {
 		return nil, err

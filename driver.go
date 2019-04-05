@@ -1,5 +1,7 @@
 package main
 
+// first two packages must be installed via 'go get (package name)
+
 import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -7,8 +9,8 @@ import (
 	"log"
 	"os"
 	"path"
-	"reindex/config"
-	"reindex/ingest"
+	"reindexer/config"
+	"reindexer/ingest"
 	"sync"
 )
 
@@ -72,14 +74,14 @@ func errorWorker(errors chan error) {
 func main() {
 	conf, err := config.LoadConfig(os.Args...)
 	if err != nil {
-        log.Fatal("Missing or invalid configuration: ", err)
+		log.Fatal("Missing or invalid configuration: ", err)
 	}
 	log.Println("Reading documents from", conf.Host)
 	log.Println("Indexing into", conf.SolrUrl)
-    connStr := conf.DatabaseUrl()
+	connStr := conf.DatabaseUrl()
 	db, err := sqlx.Connect("postgres", connStr)
 	if err != nil {
-        log.Fatal("Unable to connect to database '", conf.DisplayDatabaseUrl(), "', error: ",  err)
+		log.Fatal("Unable to connect to database '", conf.DisplayDatabaseUrl(), "', error: ", err)
 	}
 	defer db.Close()
 	ingestFiles := make(chan *os.File, 2)
@@ -87,7 +89,7 @@ func main() {
 
 	// setup worker pool
 	var wg sync.WaitGroup
-    log.Printf("Starting %d argot => solr workers", conf.Workers)
+	log.Printf("Starting %d argot => solr workers", conf.Workers)
 	for w := 1; w <= conf.Workers; w++ {
 		go ingestWorker(w, &wg, conf.SolrUrl, ingestFiles, errors)
 	}
@@ -96,7 +98,7 @@ func main() {
 	defer rows.Close()
 	count := 0
 	if err != nil {
-		log.Fatal("Unable to execute document query(" + conf.Query + "): ", err)
+		log.Fatal("Unable to execute document query("+conf.Query+"): ", err)
 	}
 	doc := Document{}
 	output, err := newOutputFile()
