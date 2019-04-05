@@ -27,7 +27,7 @@ git checkout "${ARGOT_BRANCH}"
 # these appear not to be installed on ARM systems
 # and neither does rdoc
 gem install io-console --no-ri --no-rdoc
-gem install json -no-ri --no-rdoc
+gem install json --no-ri --no-rdoc
 
 bundle install
 rake install
@@ -37,5 +37,5 @@ go get github.com/jmoiron/sqlx
 go get github.com/lib/pq
 
 ln -s ~/go/src/reindexer $(pwd)
-
-go build driver.go
+go test && go build driver.go
+cp driver ~/bin
