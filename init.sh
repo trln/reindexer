@@ -31,6 +31,8 @@ gem install json --no-ri --no-rdoc
 gem install rake --no-ri --no-rdoc
 
 bundle install
+# ensure that gem-installed tools are on the PATH
+export PATH="${PATH}":~/bin
 rake install
 popd
 
