@@ -28,6 +28,7 @@ git checkout "${ARGOT_BRANCH}"
 # and neither does rdoc
 gem install io-console --no-ri --no-rdoc
 gem install json --no-ri --no-rdoc
+gem install rake --no-ri --no-rdoc
 
 bundle install
 rake install
