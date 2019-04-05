@@ -1,7 +1,6 @@
 package ingest
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -18,20 +17,9 @@ func Ingest(filename string, solrUrl string) error {
 
 	defer log.Println("Completed work on ", filename)
 	cmd := exec.Command("argot", "ingest", "-s", solrUrl, filename)
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return err
+	combined, err := cmd.CombinedOutput()
+	if combined != nil {
+		log.Println("[", filename, "] argot output ", string(combined))
 	}
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-	slurp, _ := ioutil.ReadAll(stderr)
-	output := string(slurp)
-	if len(output) > 0 {
-		log.Println("Argot output: ", output)
-	}
-	if err = cmd.Wait(); err != nil {
-		return err
-	}
-	return nil
+	return err
 }
