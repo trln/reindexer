@@ -2,18 +2,8 @@
 
 set -e
 
-# enable golang and ruby latest versions on Amazon Linux
-if [ `command -v amazon-linux-extras` ]; then
-    # latest available version at time of writing
-    sudo amazon-linux-extras enable golang1.11
-    sudo amazon-linux-extras enable ruby2.6
-fi
-
-# ensure all prereqs are installed
-
-sudo yum -y groupinstall "Development Tools"
-
-sudo yum -y install yajl git golang ruby ruby-devel rubygem-bundler jq
+# we need the @Development tools group installed, along
+# with ruby 2.6, golang, yajl, jq installed via yum
 
 ARGOT_BRANCH=${1:-master}
 
@@ -39,6 +29,12 @@ popd
 go get github.com/jmoiron/sqlx
 go get github.com/lib/pq
 
-ln -s $(pwd) ~/go/src/reindexer
+# need to symlink to build the golang stuff all packagey
+SRCDIR=~/go/src/reindexer
+
+if [ ! -L "${SRCDIR}" ]; then
+        ln -s $(pwd) ${SRCDIR}
+fi
+
 go test && go build driver.go
 cp driver ~/bin
