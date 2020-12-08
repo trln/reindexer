@@ -26,9 +26,9 @@ cd argot-ruby
 git checkout "${ARGOT_BRANCH}"
 # these appear not to be installed on ARM systems
 # and neither does rdoc
-gem install io-console --no-ri --no-rdoc
-gem install json --no-ri --no-rdoc
-gem install rake --no-ri --no-rdoc
+gem install io-console -N
+gem install json --N
+gem install rake -N
 
 bundle install
 # ensure that gem-installed tools are on the PATH
