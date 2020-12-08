@@ -27,7 +27,7 @@ git checkout "${ARGOT_BRANCH}"
 # these appear not to be installed on ARM systems
 # and neither does rdoc
 gem install io-console -N
-gem install json --N
+gem install json -N
 gem install rake -N
 
 bundle install
