@@ -6,7 +6,7 @@ set -e
 if [ `command -v amazon-linux-extras` ]; then
     # latest available version at time of writing
     sudo amazon-linux-extras enable golang1.11
-    sudo amazon-linux-extras enable ruby2.4
+    sudo amazon-linux-extras enable ruby2.6
 fi
 
 # ensure all prereqs are installed
