@@ -6,7 +6,15 @@ import (
 	"os/exec"
 )
 
-func Ingest(filename string, solrUrl string) error {
+// configuration specifically for
+// ingest operations.
+type IngestConfig struct {
+    SolrUrl string
+    Authorities bool
+    RedisUrl string
+}
+
+func Ingest(filename string, config IngestConfig ) error {
 	log.Println("Ingesting ", filename)
 	defer func() {
 		err := os.Remove(filename)
@@ -16,7 +24,12 @@ func Ingest(filename string, solrUrl string) error {
 	}()
 
 	defer log.Println("Completed work on ", filename)
-	cmd := exec.Command("argot", "ingest", "-s", solrUrl, filename)
+    var cmd *exec.Cmd
+    if config.Authorities {
+        cmd = exec.Command("argot", "ingest", "-a", "--redis-url", config.RedisUrl, "-s", config.SolrUrl, filename)
+    } else {
+	    cmd = exec.Command("argot", "ingest", "-s", config.SolrUrl, filename)
+    }
 	combined, err := cmd.CombinedOutput()
 	if combined != nil {
 		log.Println("[", filename, "] argot output ", string(combined))
