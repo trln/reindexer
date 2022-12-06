@@ -19,6 +19,8 @@ type Config struct {
 	Query     string `json:"query"`     // query to use to fetch documents (default: evertying that isn't deleted)
 	ChunkSize int    `json:"chunkSize"` // number of documents in each package
 	SolrUrl   string `json:"solrUrl"`   // base url to solr collection
+    RedisUrl  string `json:"redisUrl"`  // URL to Redis instance
+    Authorities bool `json:"authorities"` // whether to do authority processing
 	Workers   int    `json:"workers"`   // number of concurrent workers (cpu count -1)
 }
 
@@ -59,10 +61,13 @@ func LoadConfig(files ...string) (*Config, error) {
 		Port:      5432,
 		User:      "shrindex",
 		Database:  "shrindex",
-		Query:     "select id, txn_id, owner, content from documents WHERE NOT deleted",
+		Query:     "select id, txn_id, owner, content from documents WHERE NOT deleted ORDER BY id ASC",
 		SolrUrl:   "http://localhost:8983/solr/trlnbib",
 		ChunkSize: 20000,
-		Workers:   runtime.NumCPU() - 1}
+		Workers:   runtime.NumCPU() - 1,
+        Authorities: true,
+        RedisUrl: "redis://localhost:6379/0"}
+        
 	if conf.Workers < 1 {
 		conf.Workers = 1
 	}

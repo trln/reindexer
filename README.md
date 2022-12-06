@@ -58,13 +58,30 @@ The configuration file's format is JSON, and has the following structure (see `c
     "query" : "SQL query used to fetch documents",
     "chunkSize" : 20000,
     "solrUrl" : "http://localhost:8983/solr/trlnbib",
+    "authorities": true,
+    "redisUrl": "redis://localhost:6379/0",
     "workers" : 3
 }
 ```
 
-Where the value in the sample above looks like a sensible value, it's the default; you MUST provide at least `password`.  `workers` defaults to the number simultaneous threads the current machine can run (never lower than 1).  The default value for `query` select all non-deleted documents from the database.
+Where the value in the sample above looks like a sensible value, it's the
+default; you MUST provide at least `password`.  `workers` defaults to the
+number simultaneous threads the current machine can run (never lower than 1).
+The default value for `query` select all non-deleted documents from the
+database.
 
-The master process loops over the documents matching the query, and outputs them into files with no more than `chunkSize` records in them.  At  that point, it passes that file to an available worker, which then runs `argot ingest -s [solrUlr]` on the file, which flattens and suffixes the Argot records in the file, and then submits the results to Solr for reindex.
+Authority processing against a redis database (the `authorities` attribute)
+is `true` by default. Note that errors in this process (due to an incorrect
+`redisUrl` property) will only be seen at the point of running the `argot`
+command, so pay attention to the logs
+
+The master process loops over the documents matching the query, and outputs
+them into files with no more than `chunkSize` records in them.  At  that point,
+it passes that file to an available worker, which then runs `argot ingest -s
+[solrUlr] -a --redis-url [redisUrl]` on the file (assuming `authorities` is
+true; if `false` omit the `-a`, `--redis-url` and redis URL parameters), which
+flattens and suffixes the Argot records in the file, and then submits the
+results to Solr for reindex.
 
 The entire process is logged to STDERR, so you may want to run the driver program thusly:
 

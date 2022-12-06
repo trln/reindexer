@@ -9,8 +9,8 @@ import (
 	"log"
 	"os"
 	"path"
-	"reindexer/config"
-	"reindexer/ingest"
+	"github.com/trln/reindexer/config"
+	"github.com/trln/reindexer/ingest"
 	"sync"
 )
 
@@ -52,11 +52,18 @@ func finishFile(f *os.File, wg *sync.WaitGroup, files chan *os.File) error {
 	return nil
 }
 
-func ingestWorker(id int, wg *sync.WaitGroup, solrUrl string, files chan *os.File, errors chan<- error) {
+func NewIngestConfig(appConfig *config.Config) ingest.IngestConfig {
+	return ingest.IngestConfig{
+		SolrUrl:     appConfig.SolrUrl,
+		RedisUrl:    appConfig.RedisUrl,
+		Authorities: appConfig.Authorities}
+}
+
+func ingestWorker(id int, wg *sync.WaitGroup, configuration ingest.IngestConfig, files chan *os.File, errors chan<- error) {
 	defer log.Printf("worker [%d] exited\n", id)
 	for file := range files {
 		log.Printf("[%d] received filename %s\n", id, file.Name())
-		ingestErr := ingest.Ingest(file.Name(), solrUrl)
+		ingestErr := ingest.Ingest(file.Name(), configuration)
 		log.Printf("[%d] external processing complete for %s\n", id, file.Name())
 		if ingestErr != nil {
 			errors <- ingestErr
@@ -87,11 +94,13 @@ func main() {
 	ingestFiles := make(chan *os.File, 2)
 	errors := make(chan error, 300)
 
+	ingestConfig := NewIngestConfig(conf)
+
 	// setup worker pool
 	var wg sync.WaitGroup
 	log.Printf("Starting %d argot => solr workers", conf.Workers)
 	for w := 1; w <= conf.Workers; w++ {
-		go ingestWorker(w, &wg, conf.SolrUrl, ingestFiles, errors)
+		go ingestWorker(w, &wg, ingestConfig, ingestFiles, errors)
 	}
 	go errorWorker(errors)
 	rows, err := db.Queryx(conf.Query)
