@@ -8,6 +8,7 @@ import (
 	"log"
 	"runtime"
 	"strconv"
+    "strings"
 )
 
 type Config struct {
@@ -16,13 +17,26 @@ type Config struct {
 	Database  string `json:"database"`  // name of the database ('shrindex')
 	User      string `json:"user"`      // username for database access
 	Password  string `json:"password"`  // password associated with username
-	Query     string `json:"query"`     // query to use to fetch documents (default: evertying that isn't deleted)
+	query     string `json:"query"`     // query to use to fetch documents (default: evertying that isn't deleted)
 	ChunkSize int    `json:"chunkSize"` // number of documents in each package
 	SolrUrl   string `json:"solrUrl"`   // base url to solr collection
     RedisUrl  string `json:"redisUrl"`  // URL to Redis instance
     Authorities bool `json:"authorities"` // whether to do authority processing
 	Workers   int    `json:"workers"`   // number of concurrent workers (cpu count -1)
+    StartId   string `json:"startId"`  // document ID to start with when processing partial results
 }
+
+func (c *Config) QueryString() string {
+    if len(c.StartId) == 0 {
+        return c.query
+    }
+    return strings.Replace(c.query, "not deleted", "not deleted AND id >= :startId", 1)
+}
+
+func (c *Config) HasParameters() bool {
+    return len(c.StartId) > 0
+}
+    
 
 func (c *Config) DatabaseUrl() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s", c.User, c.Password, c.Host, c.Port, c.Database)
@@ -44,7 +58,7 @@ func (c *Config) Validate() error {
 	}
 
 	if c.Password == "" {
-		return errors.New("configuration does not contain password (databae)")
+		return errors.New("configuration does not contain password (database)")
 	}
 
 	if c.SolrUrl == "" {
@@ -61,12 +75,13 @@ func LoadConfig(files ...string) (*Config, error) {
 		Port:      5432,
 		User:      "shrindex",
 		Database:  "shrindex",
-		Query:     "select id, txn_id, owner, content from documents WHERE NOT deleted ORDER BY id ASC",
+		query:     "select id, txn_id, owner, content from documents WHERE NOT deleted ORDER BY id ASC",
 		SolrUrl:   "http://localhost:8983/solr/trlnbib",
 		ChunkSize: 20000,
 		Workers:   runtime.NumCPU() - 1,
         Authorities: true,
-        RedisUrl: "redis://localhost:6379/0"}
+        RedisUrl: "redis://localhost:6379/0",
+        StartId: ""}
         
 	if conf.Workers < 1 {
 		conf.Workers = 1
