@@ -1,6 +1,6 @@
 module github.com/trln/reindexer
 
-go 1.19
+go 1.18
 
 require (
 	github.com/jmoiron/sqlx v1.3.5

@@ -21,5 +21,5 @@ export PATH="${PATH}":~/bin:~/go/bin
 bundle exec rake install
 popd
 
-go test && go install driver.go # creates '~/go/bin/reindexer'
+go test && go install # creates '~/go/bin/reindexer'
 cp ~/go/bin/reindexer ~/bin
