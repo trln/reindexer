@@ -1,0 +1,11 @@
+[Unit]
+Description=TRLN Discovery Reindex Service
+
+[Service]
+Type=simple
+User=ec2-user
+Group=ec2-user
+Environment=PATH=/bin:/usr/bin:/usr/local/bin/:/home/ec2-user/bin:/home/ec2-user/go/bin
+WorkingDirectory=/home/ec2-user/reindexer
+ExecStart=/home/ec2-user/go/bin/reindexer /home/ec2-user/reindexer/config.json &> '/home/ec2-user/reindexer/index-$(date +%Y-%m-%d).log'
+

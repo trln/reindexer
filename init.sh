@@ -23,3 +23,6 @@ popd
 
 go test && go install # creates '~/go/bin/reindexer'
 cp ~/go/bin/reindexer ~/bin
+
+sudo cp reindex.service /etc/systemd/system
+sudo systemctl daemon-reload
